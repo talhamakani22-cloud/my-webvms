@@ -1,13 +1,8 @@
 
-const { connectDB } = require('../config/database');
 const Visitor = require('../models/Visitor');
 
 const express = require('express');
 const router = express.Router();
-
-
-// Connect to MongoDB (ensure connection for all requests)
-connectDB();
 
 // GET /api/1001 - Get all visitors
 router.get('/', async (req, res) => {

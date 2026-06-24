@@ -11,7 +11,7 @@ function Dashboard({ onNavigateToReport, onLogout }) {
       setLoading(true);
       setError('');
       try {
-        const res = await fetch('http://localhost:1001/api/visitors');
+        const res = await fetch('/api/visitors');
         const data = await res.json();
         if (data.success) {
           setVisitors(data.visitors);

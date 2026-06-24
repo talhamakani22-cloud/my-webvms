@@ -8,7 +8,6 @@ const visitorSchema = new mongoose.Schema({
   emiratesId: {
     type: String,
     required: [true, 'Emirates ID is required'],
-    unique: true,
     trim: true
   },
   fullNameEnglish: {
@@ -82,7 +81,8 @@ const visitorSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries (emiratesId index already created by unique: true)
+// Index for faster queries
+visitorSchema.index({ emiratesId: 1 });
 visitorSchema.index({ status: 1 });
 visitorSchema.index({ checkInTime: -1 });
 visitorSchema.index({ nationality: 1 });
@@ -132,4 +132,3 @@ visitorSchema.statics.getStats = async function() {
 const Visitor = mongoose.model('Visitor', visitorSchema);
 
 module.exports = Visitor;
-// Visitor model removed for new server setup.
