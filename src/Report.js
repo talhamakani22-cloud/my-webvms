@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Report.css';
+import { apiUrl } from './apiClient';
 
 function Report({ onBackToDashboard, onRequireLogin }) {
   useEffect(() => {
@@ -25,7 +26,8 @@ function Report({ onBackToDashboard, onRequireLogin }) {
       if (searchQuery) params.append('search', searchQuery);
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
-      const res = await fetch(`/api/visitors?${params.toString()}`);
+      const query = params.toString();
+      const res = await fetch(apiUrl(`/api/visitors${query ? `?${query}` : ''}`));
       const data = await res.json();
       if (data.success) {
         setVisitors(data.visitors);
@@ -62,6 +64,13 @@ function Report({ onBackToDashboard, onRequireLogin }) {
     setError('');
     // Fetch all visitors after clearing filters
     fetchVisitors();
+  };
+
+  const handlePrintReport = async () => {
+    await fetchVisitors();
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   return (
@@ -193,7 +202,7 @@ function Report({ onBackToDashboard, onRequireLogin }) {
         <button className="action-btn export-btn">
           📥 Export to CSV
         </button>
-        <button className="action-btn print-btn">
+        <button className="action-btn print-btn" onClick={handlePrintReport}>
           🖨️ Print Report
         </button>
         <button className="action-btn back-dashboard" onClick={onBackToDashboard}>

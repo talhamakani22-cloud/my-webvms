@@ -8,23 +8,45 @@ function Dashboard({ onNavigateToReport, onLogout }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchVisitors = async () => {
-      setLoading(true);
+    let isMounted = true;
+
+    const fetchVisitors = async (showLoader = false) => {
+      if (showLoader && isMounted) {
+        setLoading(true);
+      }
       setError('');
       try {
         const res = await fetch(apiUrl('/api/visitors'));
         const data = await res.json();
         if (data.success) {
-          setVisitors(data.visitors);
+          if (isMounted) {
+            setVisitors(data.visitors);
+          }
         } else {
-          setError(data.message || 'Failed to fetch visitors');
+          if (isMounted) {
+            setError(data.message || 'Failed to fetch visitors');
+          }
         }
       } catch (err) {
-        setError('Failed to fetch visitors');
+        if (isMounted) {
+          setError('Failed to fetch visitors');
+        }
       }
-      setLoading(false);
+      if (showLoader && isMounted) {
+        setLoading(false);
+      }
     };
-    fetchVisitors();
+
+    fetchVisitors(true);
+
+    const refreshInterval = setInterval(() => {
+      fetchVisitors(false);
+    }, 60000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(refreshInterval);
+    };
   }, []);
 
   // Compute stats
@@ -52,11 +74,11 @@ function Dashboard({ onNavigateToReport, onLogout }) {
   ];
   const totalVisitorTypes = visitorTypes.reduce((sum, v) => sum + v.count, 0);
 
-  // Recent visitors (last 5 by issueDate or createdAt)
+  // Recent visitors (last 5 by created time)
   const recentVisitors = [...visitors]
     .sort((a, b) => {
-      const aDate = new Date(a.issueDate || a.createdAt || 0);
-      const bDate = new Date(b.issueDate || b.createdAt || 0);
+      const aDate = new Date(a.createdAt || a.checkInTime || a.issueDate || 0);
+      const bDate = new Date(b.createdAt || b.checkInTime || b.issueDate || 0);
       return bDate - aDate;
     })
     .slice(0, 5);
